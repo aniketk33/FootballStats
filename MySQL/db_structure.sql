@@ -1,5 +1,10 @@
 SET SQL_SAFE_UPDATES = 0; -- to update or delete items from table set to 0 else 1 for safe mode
 
+create table userdetails(
+	username varchar(50) not null primary key,
+    password varchar(32)
+);
+
 create table TeamTable(
 	team_id int auto_increment primary key,
     team_name varchar(50),
