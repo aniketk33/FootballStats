@@ -3,6 +3,8 @@ const app = express()
 const userAuthRoutes = require('./routers/user-auth')
 const teamInfoAuthRoutes = require('./routers/team-info')
 
+const port = process.env.PORT || 5000
+
 //get the db connection
 const dbConnection = require('./dbConfig')
 
@@ -116,6 +118,6 @@ app.all('*', (req, res) => {
     })
 })
 
-app.listen(5000, () => {
+app.listen(port, () => {
     console.log('Server is running at port 5000')
 })
