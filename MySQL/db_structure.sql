@@ -30,20 +30,15 @@ create table FixtureTable(
     foreign key(teamB_id) references TeamTable(team_id)
 );
 
-create table TeamsPastPerformance(
-	performance_id int auto_increment primary key,
-    fixture_id int,
-    foreign key(fixture_id) references FixtureTable(fixture_id)
-);
+drop database football_stats;
+create database football_stats;
+select * from TeamTable;
+select * from SquadTable;
+select * from FixtureTable;
 
--- select * from TeamTable;
--- select * from SquadTable;
--- select * from FixtureTable;
--- select * from TeamsPastPerformance;
+drop table TeamTable;
+drop table SquadTable;
+drop table FixtureTable;
+drop table TeamsPastPerformance;
 
--- drop table TeamTable;
--- drop table SquadTable;
--- drop table FixtureTable;
--- drop table TeamsPastPerformance;
-
--- delete from TeamTable;
+delete from TeamTable;
