@@ -16,6 +16,8 @@ const teamsUrl = 'https://raw.githubusercontent.com/openfootball/football.json/m
 
 const fixturesUrl = 'https://raw.githubusercontent.com/openfootball/football.json/master/2018-19/en.1.json'
 
+const playersUrl = 'https://raw.githubusercontent.com/bakayks/PremierLeague.json/master/data.json'
+
 const AddTeamsToDB = async () => {
     var responseString = await fetch(teamsUrl)
     var teamsJson = await responseString.json()
@@ -74,8 +76,23 @@ const AddFixturesToDB = async () => {
 
 }
 
-
-
+const AddPlayersToDB = async()=>{
+    var responseString = await fetch(playersUrl)
+    var playersRes = await responseString.json()
+    var playersList = playersRes.players
+    for (let index = 0; index < playersList.length; index++) {
+        const playerDetails = playersList[index];
+        let addPlayersQuery = `INSERT INTO squadtable(player_name,team_id) VALUES ("${playerDetails.jersey_name}", (SELECT team_id FROM teamtable WHERE team_code = '${playerDetails.club_code}'))`
+    
+        dbConnection.query(addPlayersQuery,(err)=>{
+            if(err){
+                console.log(err)
+            }
+        })
+    }
+    console.log('Successfully added players to DB')
+}
 
 // AddTeamsToDB()
 // AddFixturesToDB()
+// AddPlayersToDB()
