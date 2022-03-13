@@ -8,21 +8,25 @@ const getTeamsList = (req, res) => {
         if (err) {
             return res.json(responseMessage(response = err.message, isSuccess = false))
         }
-        if (result.length > 0) {
-            teamResults = result
+        try {
             const response = []
-            for (let index = 0; index < result.length; index++) {
-                var teamDetails = result[index];
-                response.push({
-                    "ID": teamDetails.team_id,
-                    "Name": teamDetails.team_name,
-                    "Code": teamDetails.team_code,
-                })
+            if (result.length > 0) {
+                teamResults = result
+                for (let index = 0; index < result.length; index++) {
+                    var teamDetails = result[index];
+                    response.push({
+                        "ID": teamDetails.team_id,
+                        "Name": teamDetails.team_name,
+                        "Code": teamDetails.team_code,
+                    })
 
+                }
             }
             return res.send(response)
         }
-        res.json(responseMessage(response = "Something went wrong", isSuccess = false))
+        catch {
+            res.json(responseMessage(response = "Something went wrong", isSuccess = false))
+        }
     })
 }
 
@@ -34,20 +38,26 @@ const getSquadInfo = (req, res) => {
         if (err) {
             res.json(responseMessage(response = err.message, isSuccess = false))
         }
-        console.log(result)
-        if (result.length > 0) {
-            var response = []
-            for (let index = 0; index < result.length; index++) {
-                var playerDetails = result[index];
-                response.push({
-                    "Player": playerDetails.player_name,
-                    "Club": playerDetails.team_name
-                })
+        try {
+            if (result.length > 0) {
+                var response = []
+                for (let index = 0; index < result.length; index++) {
+                    var playerDetails = result[index];
+                    response.push({
+                        "Player": playerDetails.player_name,
+                        "Club": playerDetails.team_name
+                    })
 
+                }
+                return res.send(response)
             }
-            return res.send(response)
+            else{
+                res.send({ error: `Players not found` })
+            }
         }
-        res.send({ error: `Players not found` })
+        catch {
+            res.json(responseMessage(response = "Something went wrong", isSuccess = false))
+        }
     })
 
 }
