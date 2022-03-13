@@ -14,6 +14,12 @@ app.use(express.urlencoded({ extended: false }))
 app.use('/user',userAuthRoutes)
 app.use('/teams', teamInfoAuthRoutes)
 
+//home page
+app.get('/',(req,res)=>{
+    res.send("Welcome")
+})
+
+
 app.get('/fixtures', (req, res) => {
     var { pageNum, date } = req.body
     if (!date) {
