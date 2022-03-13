@@ -3,7 +3,8 @@ const dbConnection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'football_stats'
+    database: 'football_stats',
+    multipleStatements: true
 })
 
 //connecting to the db server

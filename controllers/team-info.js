@@ -1,4 +1,5 @@
 const dbConnection = require('../dbConfig');
+let teamResults = []
 
 const getTeamsList = (req, res) => {
     let getTeamsQuery = 'SELECT * FROM teamtable'

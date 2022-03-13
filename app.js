@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express()
 const userAuthRoutes = require('./routers/user-auth')
-const teamInfoAuthRoutes = require('./routers/teams-info')
+const teamInfoAuthRoutes = require('./routers/team-info')
 
 //get the db connection
 const dbConnection = require('./dbConfig')

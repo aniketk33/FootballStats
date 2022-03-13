@@ -13,7 +13,7 @@ const userLogin = (req, res) => {
     else if (!userModel.password) {
         return res.json(responseMessage(response = "Password cannot be empty", isSuccess = false))
     }
-    let userExistQuery = `select * from user_details where username ='${userModel.username}' and password=md5('${userModel.password}')`
+    let userExistQuery = `select * from userdetails where username ='${userModel.username}' and password=md5('${userModel.password}')`
     dbConnection.query(userExistQuery, (err, result) => {
         if (err) {
             return res.json(responseMessage(response = err.message, isSuccess = false))
@@ -46,14 +46,14 @@ const userRegister = (req, res) => {
         return res.json(responseMessage(response = "Password and Confirm password should be the same", isSuccess = false))
 
     }
-    let userExistQuery = `select * from user_details where username ='${userModel.username}'`
+    let userExistQuery = `select * from userdetails where username ='${userModel.username}'`
     dbConnection.query(userExistQuery, (err, result) => {
         if (err) {
             return res.json(responseMessage(response = err.message, isSuccess = false))
 
         }
         if (result.length == 0) {
-            let addUserQuery = `insert into user_details(username,password) values('${userModel.username}',md5('${userModel.password}'))`
+            let addUserQuery = `insert into userdetails(username,password) values('${userModel.username}',md5('${userModel.password}'))`
             dbConnection.query(addUserQuery, (addErr) => {
                 if (addErr) {
                     return res.json(responseMessage(response = addErr.message, isSuccess = false))
