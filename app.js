@@ -11,6 +11,8 @@ const dbConnection = require('./dbConfig')
 //middlewares
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
+
+//routes
 app.use('/user',userAuthRoutes)
 app.use('/teams', teamInfoAuthRoutes)
 
@@ -86,37 +88,6 @@ app.get('/fixtures', (req, res) => {
         }
     })
 })
-//database query routes
-//create table
-app.get('/createDb', (req, res) => {
-    let createDbQuery = 'create database football_stats'
-    dbConnection.query(createDbQuery, (err, result) => {
-        if (err) {
-            return res.json({
-                error: err.message
-            })
-        }
-        res.send(result)
-
-    })
-
-})
-
-app.get('/createUserTable', (req, res) => {
-    let createTableQuery = 'create table user_details (username varchar(50) not null, password varchar(32), primary key(username))'
-    dbConnection.query(createTableQuery, (err, result) => {
-        if (err) {
-            return res.json({
-                error: err.message
-            })
-        }
-        res.send(result)
-
-    })
-
-})
-
-
 
 app.all('*', (req, res) => {
     res.json({

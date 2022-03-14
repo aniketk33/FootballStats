@@ -1,9 +1,9 @@
-var responseMessage = require('../utilities/utility-function')
+const jwt = require('jsonwebtoken');
+var userModel = require('../models/user-auth');
+var {SECRET_KEYS, responseMessage} = require('../utilities/utility-function')
 
 //get the db connection
 const dbConnection = require('../dbConfig');
-var userModel = require('../models/user-auth');
-
 
 const userLogin = (req, res) => {
     userModel = req.body
@@ -21,7 +21,14 @@ const userLogin = (req, res) => {
         if (result.length == 0) {
             return res.json(responseMessage(response = "User does not exists or password is incorrect", isSuccess = false))
         }
-        res.json(responseMessage(response = "User logged in successfully"))
+        const jwtToken = jwt.sign({
+            "username":userModel.username
+        }, SECRET_KEYS.JWT_SECRET,{expiresIn:'1d'})
+        
+        res.json({
+            "message":"User logged in successfully",
+            "token":jwtToken
+        })
 
     })
 }
