@@ -36,7 +36,7 @@ app.get('/fixtures', (req, res) => {
     else {
         pageNum = (pageNum - 1) * 10
     }
-    let getFixturesQuery = `select * from TeamTable; SELECT * FROM fixturetable WHERE fixture_date = '${date}' LIMIT 10 OFFSET ${pageNum};`
+    let getFixturesQuery = `select * from TeamTable; SELECT * FROM fixturetable WHERE fixture_date >= '${date}' LIMIT 10 OFFSET ${pageNum};`
     // let getTeamsListQuery = 'select * from TeamTable'
 
     // let getFixturesQuery = `SELECT * FROM fixturetable LIMIT 10 OFFSET ${pageNum}`
