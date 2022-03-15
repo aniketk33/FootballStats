@@ -1,35 +1,28 @@
 const dbConnection = require('../dbConfig');
-let teamResults = []
+const utilityFunction = require('../utilities/utility-function')
 
-const getTeamsList = async(req, res) => {
-    //let getTeamsQuery = 'SELECT * FROM teamtable'
-   // dbConnection.query(getTeamsQuery, (err, result) => {
+const getTeamsList = async (req, res) => {
+    try {
+        var result = await utilityFunction.getTeamsList()
+        const response = []
+        if (result.length > 0) {
+            for (let index = 0; index < result.length; index++) {
+                var teamDetails = result[index];
+                response.push({
+                    "ID": teamDetails.team_id,
+                    "Name": teamDetails.team_name,
+                    "Code": teamDetails.team_code,
+                })
 
-        // if (err) {
-        //     return res.json(responseMessage(response = err.message, isSuccess = false))
-        // }
-        try {
-            var result = await getList()
-            // console.log(result)
-            const response = []
-            if (result.length > 0) {
-                teamResults = result
-                for (let index = 0; index < result.length; index++) {
-                    var teamDetails = result[index];
-                    response.push({
-                        "ID": teamDetails.team_id,
-                        "Name": teamDetails.team_name,
-                        "Code": teamDetails.team_code,
-                    })
-
-                }
             }
             return res.send(response)
         }
-        catch {
-            res.json(responseMessage(response = "Something went wrong", isSuccess = false))
-        }
-    //})
+        res.status(500).json(utilityFunction.responseMessage(response = "Something went wrong", isSuccess = false))
+
+    }
+    catch {
+        res.status(500).json(utilityFunction.responseMessage(response = "Something went wrong", isSuccess = false))
+    }
 }
 
 const getSquadInfo = (req, res) => {
@@ -38,7 +31,7 @@ const getSquadInfo = (req, res) => {
     let squadQuery = `select T.team_name , S.player_name from teamtable T join squadtable S on (S.team_id = T.team_id and T.team_id = '${teamId}')`
     dbConnection.query(squadQuery, (err, result) => {
         if (err) {
-            res.json(responseMessage(response = err.message, isSuccess = false))
+           return res.status(500).json(utilityFunction.responseMessage(response = err.message, isSuccess = false))
         }
         try {
             if (result.length > 0) {
@@ -53,12 +46,11 @@ const getSquadInfo = (req, res) => {
                 }
                 return res.send(response)
             }
-            else {
-                res.send({ error: `Players not found` })
-            }
+            res.send({ error: `Players not found` })
+
         }
         catch {
-            res.json(responseMessage(response = "Something went wrong", isSuccess = false))
+            res.json(utilityFunction.responseMessage(response = "Something went wrong", isSuccess = false))
         }
     })
 
@@ -66,7 +58,7 @@ const getSquadInfo = (req, res) => {
 
 const getTeamFixtures = (req, res) => {
     var { teamId } = req.params
-    var { uptoDate, matchesCount } = req.body
+    var { uptoDate, matchesCount } = req.query
 
     if (uptoDate || matchesCount) {
         if (!uptoDate) {
@@ -82,23 +74,24 @@ const getTeamFixtures = (req, res) => {
             }
             matchesCount = 5
         }
-        var fixtureQuery = `SELECT * from teamtable;select * from fixturetable where fixture_date <= '${uptoDate}' and (teamA_id ='${teamId}' or teamB_id ='${teamId}') order by fixture_date desc LIMIT ${matchesCount};`
+        var fixtureQuery = `select * from fixturetable where fixture_date <= '${uptoDate}' and (teamA_id ='${teamId}' or teamB_id ='${teamId}') order by fixture_date desc LIMIT ${matchesCount};`
     } else {
-        var fixtureQuery = `SELECT * from teamtable; SELECT * FROM FixtureTable WHERE teamA_id=${teamId} OR teamB_id=${teamId};`
+        var fixtureQuery = `SELECT * FROM FixtureTable WHERE teamA_id=${teamId} OR teamB_id=${teamId};`
     }
-    dbConnection.query(fixtureQuery, (err, result) => {
+    dbConnection.query(fixtureQuery, async (err, result) => {
         if (err) {
-            return res.json(responseMessage(response = err.message, isSuccess = false))
+            return res.json(utilityFunction.responseMessage(response = err.message, isSuccess = false))
         }
         try {
             if (result.length > 0) {
-                var teamDetails = result[0].find(team => team.team_id == teamId)
+                var teamList = await utilityFunction.getTeamsList()
+                var teamDetails = teamList.find(team => team.team_id == teamId)
                 var response = []
-                for (let index = 0; index < result[1].length; index++) {
-                    var fixtureDetails = result[1][index];
+                for (let index = 0; index < result.length; index++) {
+                    var fixtureDetails = result[index];
                     var fixDate = new Date(Date.parse(fixtureDetails.fixture_date))
                     if (teamDetails.team_id == fixtureDetails.teamA_id) {
-                        var opponent = result[0].find(team => team.team_id == Number(fixtureDetails.teamB_id))
+                        var opponent = teamList.find(team => team.team_id == Number(fixtureDetails.teamB_id))
 
                         response.push({
                             "Club": teamDetails.team_name,
@@ -110,7 +103,7 @@ const getTeamFixtures = (req, res) => {
                         })
                     }
                     else {
-                        var opponent = result[0].find(team => team.team_id == Number(fixtureDetails.teamA_id))
+                        var opponent = teamList.find(team => team.team_id == Number(fixtureDetails.teamA_id))
 
                         response.push({
                             "Club": teamDetails.team_name,
@@ -125,7 +118,7 @@ const getTeamFixtures = (req, res) => {
                 }
                 return res.send(response)
             }
-            res.send({ error: `Players not found` })
+            res.send({ error: `No matches found` })
         } catch (error) {
             console.log(error)
             return res.send({ error: "Something went wrong" })
@@ -133,26 +126,6 @@ const getTeamFixtures = (req, res) => {
 
     })
 
-}
-
-const getList = async () => {
-    let teamList = []
-    var resPromise = new Promise((resolve, reject) => {
-        let getTeamsQuery = 'SELECT * FROM teamtable'
-        dbConnection.query(getTeamsQuery, (err, result) => {
-            if(err){
-                reject(err)
-            }
-            resolve(result)
-        })
-    })
-    try {
-        teamList = await resPromise
-        // console.log(teamList)
-        return teamList                
-    } catch (error) {
-        return teamList 
-    }
 }
 
 module.exports = { getTeamsList, getSquadInfo, getTeamFixtures }
