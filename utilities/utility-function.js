@@ -28,5 +28,17 @@ const getTeamsList = ()=>{
     });
 }
 
+const UserExists = (username)=>{
+    return new Promise((resolve, reject) => {
+        let userExistQuery = `select * from userdetails where username ='${username}'`
+        dbConnection.query(userExistQuery, (err, result) =>{
+            if(err){
+                return reject(false)
+            }            
+            resolve(result.length > 0)
+        })
+    });
+}
 
-module.exports = {responseMessage, getTeamsList}
+
+module.exports = {responseMessage, getTeamsList, UserExists}

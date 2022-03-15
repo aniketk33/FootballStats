@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 var userModel = require('../models/user-auth');
-var {SECRET_KEYS, responseMessage} = require('../utilities/utility-function')
+var { responseMessage, UserExists } = require('../utilities/utility-function')
 
 //get the db connection
 const dbConnection = require('../dbConfig');
 
-const userLogin = (req, res) => {
+const userLogin = async (req, res) => {
     userModel = req.body
     if (!userModel.username) {
         return res.json(responseMessage(response = "Username cannot be empty", isSuccess = false))
@@ -13,27 +13,34 @@ const userLogin = (req, res) => {
     else if (!userModel.password) {
         return res.json(responseMessage(response = "Password cannot be empty", isSuccess = false))
     }
-    let userExistQuery = `select * from userdetails where username ='${userModel.username}' and password=md5('${userModel.password}')`
-    dbConnection.query(userExistQuery, (err, result) => {
-        if (err) {
-            return res.json(responseMessage(response = err.message, isSuccess = false))
-        }
-        if (result.length == 0) {
-            return res.json(responseMessage(response = "User does not exists or password is incorrect", isSuccess = false))
-        }
-        const jwtToken = jwt.sign({
-            "username":userModel.username
-        }, "jwtSecret",{expiresIn:'1d'})
-        
-        res.json({
-            "message":"User logged in successfully",
-            "token":jwtToken
-        })
+    var userExists = await UserExists(userModel.username)
+    if (!userExists) {
+        return res.json(responseMessage(response = "User does not exists", isSuccess = false))
+    }
+    else {
+        let userExistQuery = `select * from userdetails where username ='${userModel.username}' and password=md5('${userModel.password}')`
+        dbConnection.query(userExistQuery, (err, result) => {
+            if (err) {
+                return res.json(responseMessage(response = err.message, isSuccess = false))
+            }
+            if (result.length == 0) {
+                return res.json(responseMessage(response = "Password is incorrect", isSuccess = false))
+            }
+            const jwtToken = jwt.sign({
+                "username": userModel.username
+            }, "jwtSecret", { expiresIn: '1d' })
 
-    })
+            res.json({
+                "message": "User logged in successfully",
+                "token": jwtToken
+            })
+
+        })
+    }
+
 }
 
-const userRegister = (req, res) => {
+const userRegister = async (req, res) => {
     userModel = req.body
     if (!userModel.username) {
         return res.json(responseMessage(response = "Username cannot be empty", isSuccess = false))
@@ -53,29 +60,21 @@ const userRegister = (req, res) => {
         return res.json(responseMessage(response = "Password and Confirm password should be the same", isSuccess = false))
 
     }
-    let userExistQuery = `select * from userdetails where username ='${userModel.username}'`
-    dbConnection.query(userExistQuery, (err, result) => {
-        if (err) {
-            return res.json(responseMessage(response = err.message, isSuccess = false))
+    var userExists = await UserExists(userModel.username)
+    if (!userExists) {
+        let addUserQuery = `insert into userdetails(username,password) values('${userModel.username}',md5('${userModel.password}'))`
+        dbConnection.query(addUserQuery, (addErr) => {
+            if (addErr) {
+                return res.json(responseMessage(response = addErr.message, isSuccess = false))
 
-        }
-        if (result.length == 0) {
-            let addUserQuery = `insert into userdetails(username,password) values('${userModel.username}',md5('${userModel.password}'))`
-            dbConnection.query(addUserQuery, (addErr) => {
-                if (addErr) {
-                    return res.json(responseMessage(response = addErr.message, isSuccess = false))
+            }
+            res.json(responseMessage(response = "User registered successfully"))
 
-                }
-                res.json(responseMessage(response = "User registered successfully"))
-
-            })
-
-        } else {
-            res.json(responseMessage(response = "User already exists", isSuccess = false))
-
-        }
-
-    })
+        })
+    }
+    else {
+        res.json(responseMessage(response = "User already exists", isSuccess = false))
+    }
 }
 
 
