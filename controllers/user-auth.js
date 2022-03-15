@@ -23,7 +23,7 @@ const userLogin = (req, res) => {
         }
         const jwtToken = jwt.sign({
             "username":userModel.username
-        }, SECRET_KEYS.JWT_SECRET,{expiresIn:'1d'})
+        }, "jwtSecret",{expiresIn:'1d'})
         
         res.json({
             "message":"User logged in successfully",

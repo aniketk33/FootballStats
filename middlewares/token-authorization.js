@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const {SECRET_KEYS} = require('../utilities/utility-function');
+// const {SECRET_KEYS} = require('../utilities/utility-function');
 
 const tokenAuthorization = (req,res,next)=>{
 
@@ -14,7 +14,8 @@ const tokenAuthorization = (req,res,next)=>{
         }
         
         var token = authHeader.split(' ')[1]
-        const decodedToken = jwt.verify(token, SECRET_KEYS.JWT_SECRET)
+        // const decodedToken = jwt.verify(token, "jwtSecret")
+        jwt.verify(token, "jwtSecret")
         next()
 
     } catch (error) {

@@ -1,14 +1,16 @@
 const dbConnection = require('../dbConfig');
 let teamResults = []
 
-const getTeamsList = (req, res) => {
-    let getTeamsQuery = 'SELECT * FROM teamtable'
-    dbConnection.query(getTeamsQuery, (err, result) => {
+const getTeamsList = async(req, res) => {
+    //let getTeamsQuery = 'SELECT * FROM teamtable'
+   // dbConnection.query(getTeamsQuery, (err, result) => {
 
-        if (err) {
-            return res.json(responseMessage(response = err.message, isSuccess = false))
-        }
+        // if (err) {
+        //     return res.json(responseMessage(response = err.message, isSuccess = false))
+        // }
         try {
+            var result = await getList()
+            // console.log(result)
             const response = []
             if (result.length > 0) {
                 teamResults = result
@@ -27,7 +29,7 @@ const getTeamsList = (req, res) => {
         catch {
             res.json(responseMessage(response = "Something went wrong", isSuccess = false))
         }
-    })
+    //})
 }
 
 const getSquadInfo = (req, res) => {
@@ -73,9 +75,9 @@ const getTeamFixtures = (req, res) => {
             })
         }
         if (!matchesCount || matchesCount < 0 || matchesCount > 10) {
-            if(matchesCount > 10){
+            if (matchesCount > 10) {
                 return res.json({
-                    "error":"Only last 10 matches data can be obatined"
+                    "error": "Only last 10 matches data can be obatined"
                 })
             }
             matchesCount = 5
@@ -131,6 +133,26 @@ const getTeamFixtures = (req, res) => {
 
     })
 
+}
+
+const getList = async () => {
+    let teamList = []
+    var resPromise = new Promise((resolve, reject) => {
+        let getTeamsQuery = 'SELECT * FROM teamtable'
+        dbConnection.query(getTeamsQuery, (err, result) => {
+            if(err){
+                reject(err)
+            }
+            resolve(result)
+        })
+    })
+    try {
+        teamList = await resPromise
+        // console.log(teamList)
+        return teamList                
+    } catch (error) {
+        return teamList 
+    }
 }
 
 module.exports = { getTeamsList, getSquadInfo, getTeamFixtures }
