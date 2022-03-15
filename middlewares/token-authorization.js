@@ -7,7 +7,7 @@ const tokenAuthorization = (req,res,next)=>{
         
         const authHeader = req.headers.authorization
         if(!authHeader || !authHeader.startsWith('Bearer')){
-            return res.json({
+            return res.status(401).json({
                 "staus":"Failure",
                 "message":"Please provide token"
             })
