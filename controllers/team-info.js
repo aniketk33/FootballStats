@@ -62,13 +62,13 @@ const getTeamFixtures = (req, res) => {
 
     if (uptoDate || matchesCount) {
         if (!uptoDate) {
-            return res.send({
+            return res.status(400).json({
                 "error": "Please provide date"
             })
         }
         if (!matchesCount || matchesCount < 0 || matchesCount > 10) {
             if (matchesCount > 10) {
-                return res.json({
+                return res.status(400).json({
                     "error": "Only last 10 matches data can be obatined"
                 })
             }
@@ -80,7 +80,7 @@ const getTeamFixtures = (req, res) => {
     }
     dbConnection.query(fixtureQuery, async (err, result) => {
         if (err) {
-            return res.json(utilityFunction.responseMessage(response = err.message, isSuccess = false))
+            return res.status(500).json(utilityFunction.responseMessage(response = err.message, isSuccess = false))
         }
         try {
             if (result.length > 0) {
@@ -120,8 +120,7 @@ const getTeamFixtures = (req, res) => {
             }
             res.send({ error: `No matches found` })
         } catch (error) {
-            console.log(error)
-            return res.send({ error: "Something went wrong" })
+            return res.status(500).send({ error: "Something went wrong" })
         }
 
     })
